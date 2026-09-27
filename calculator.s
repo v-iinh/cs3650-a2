@@ -26,26 +26,61 @@ main:
   xorb %al, %al
   call scanf
 
-  movb op, ??? # TODO: load the operation for comparisons
-  movq a, ???  # TODO: and the LHS
+  movb op, %r8b
+  movq a, %rax
+  movq b, %r9
 
-  # TODO: Analyze operation and execute
+  cmpb $'+', %r8b
+  je .Ladd
+  cmpb $'-', %r8b
+  je .Lsubtract
+  cmpb $'*', %r8b
+  je .Lmultiply
+  cmpb $'/', %r8b
+  je .Ldivide
 
-  # TODO: Print result
+  # Operation not supported
+  movq $unknown_operation_fmt, %rdi
+  xorb %al, %al
+  call printf
+  movl $1, %eax
+  jmp .Ldone
 
-  # TODO: Print error if operation cannot be (safely) performed
+.Ladd:
+  addq %r9, %rax
+  jmp .Lprint_result
 
-  # if (op_char == '+') {
-  #   ...
-  # }
-  # else if (op_char == '-') {
-  #  ...
-  # }
-  # ...
-  # else {
-  #   // print error
-  #   // return 1 from main
-  # }
+.Lsubtract:
+  subq %r9, %rax
+  jmp .Lprint_result
+
+.Lmultiply:
+  imulq %r9, %rax
+  jmp .Lprint_result
+
+.Ldivide:
+  testq %r9, %r9
+  je .Ldivision_by_zero
+
+  cqto
+  idivq %r9
+  jmp .Lprint_result
+
+.Ldivision_by_zero:
+  movq $division_by_zero_fmt, %rdi
+  xorb %al, %al
+  call printf
+  movl $1, %eax
+  jmp .Ldone
+
+.Lprint_result:
+  movq $output_fmt, %rdi
+  movq %rax, %rsi
+  xorb %al, %al
+  call printf
+  xorl %eax, %eax
+
+.Ldone:
 
   # Function epilogue
   leave
@@ -57,8 +92,12 @@ main:
 
 output_fmt: 
   .asciz "%ld\n"
+unknown_operation_fmt:
+  .asciz "Unknown operation\n"
+division_by_zero_fmt:
+  .asciz "Division by zero\n"
 scanf_fmt: 
-  .asciz "%ld %c %ld"  # TODO: modify as needed
+  .asciz "%ld %c %ld"
 
 # "Slots" for scanf
 a:  .quad 0
