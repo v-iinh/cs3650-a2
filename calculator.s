@@ -15,9 +15,9 @@ main:
   enter $0, $0
 
   # Use scanf to retrieve and process a line of input
-  # This block implements the following line of C code: 
+  # This block implements the following line of C code:
   #   scanf("%ld %c %ld", &a, &op, &b);
-  # Take a look at the man page for scanf and ask questions. You can also look 
+  # Take a look at the man page for scanf and ask questions. You can also look
   # at scanf_example.c
   movq $scanf_fmt, %rdi
   movq $a, %rsi
@@ -39,7 +39,6 @@ main:
   cmpb $'/', %r8b
   je .Ldivide
 
-  # Operation not supported
   movq $unknown_operation_fmt, %rdi
   xorb %al, %al
   call printf
@@ -86,7 +85,6 @@ main:
   leave
   ret
 
-
 # Start of the data section
 .data
 
@@ -103,4 +101,3 @@ scanf_fmt:
 a:  .quad 0
 b:  .quad 0
 op: .byte 0
-
